@@ -62,23 +62,21 @@ def load_textures():
     texture.load('tank_right', 'tank_right.png')
     texture.load('tank_left', 'tank_left.png')
 
-
-    texture.load('tank_down_player','tank_down_player.png')
+    # Текстуры игрока (исправлено)
+    texture.load('tank_down_player', 'tank_down_player.png')
     texture.load('tank_up_player', 'tank_up_player.png')
     texture.load('tank_right_player', 'tank_right_player.png')
-    texture.load('tank_down_player', 'tank_left_player.png')
+    texture.load('tank_left_player', 'tank_left_player.png')  # Было tank_down_player
 
     texture.load('missile_up', 'missile_up.png')
     texture.load('missile_down', 'missile_down.png')
     texture.load('missile_left', 'missile_left.png')
     texture.load('missile_right', 'missile_right.png')
 
-
     texture.load(world.BRICK, 'brick.png')
     texture.load(world.WATER, 'water.png')
     texture.load(world.CONCRETE, 'wall.png')
     texture.load(world.MISSLE, 'bonus.png')
-
 
 w = Tk()
 load_textures()

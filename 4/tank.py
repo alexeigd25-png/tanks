@@ -1,5 +1,3 @@
-
-
 from hitbox import Hitbox
 from tkinter import *
 from random import randint
@@ -7,11 +5,14 @@ import world
 import texture as skin
 
 
+# НЕ ДОБАВЛЯЙТЕ missiles_collection, если его нет!
+# Вместо этого будем использовать print для проверки
+
 
 class Tank:
     __count = 0
 
-    def __init__(self, canvas, x, y,model = 'Т-14 Армата', ammo = 100, speed = 10, bot = True):
+    def __init__(self, canvas, x, y, model='Т-14 Армата', ammo=100, speed=10, bot=True):
         self.__bot = bot
         self.__target = None
         Tank.__count += 1
@@ -38,21 +39,22 @@ class Tank:
         self.__create()
         self.right()
 
+        # ДОБАВЛЯЕМ счетчик для стрельбы
+        self.__shot_timer = 0  # Таймер для стрельбы ботов
+
         # print(self)
 
-#5
+    # 5
     def __take_ammo(self):
         self.__ammo += 10
         if self.__ammo > 100:
             self.__ammo = 100
-
 
     def __set_usual_speed(self):
         self.__speed = self.__usual_speed
 
     def __set_water_speed(self):
         self.__speed = self.__water_speed
-
 
     def __check_map_collision(self):
         details = {}
@@ -74,19 +76,18 @@ class Tank:
 
         elif world.MISSLE in details:
             pos = details[world.MISSLE]
-            if world.take(pos['row'], pos['col'])!= world.AIR:
+            if world.take(pos['row'], pos['col']) != world.AIR:
                 self.__take_ammo()
         else:
             self.__undo_move()
             if self.__bot:
                 self.__AI_change_orientation()
 
-
     def set_target(self, target):
         self.__target = target
 
     def __AI_goto_target(self):
-        if randint(1,2) == 1:
+        if randint(1, 2) == 1:
             if self.__target.get_x() < self.get_x():
                 self.left()
             else:
@@ -98,8 +99,8 @@ class Tank:
                 self.backward()
 
     def __AI(self):
-        if randint(1,30) == 1:
-            if randint(1,10) < 9 and self.__target is not None:
+        if randint(1, 30) == 1:
+            if randint(1, 10) < 9 and self.__target is not None:
                 self.__AI_goto_target()
             else:
                 self.__AI_change_orientation()
@@ -118,27 +119,29 @@ class Tank:
     def fire(self):
         if self.__ammo > 0:
             self.__ammo -= 1
-            print('стреляю')
+            print(f'БОТ СТРЕЛЯЕТ! Осталось снарядов: {self.__ammo}')
+            # Если нужны реальные снаряды, раскомментируйте следующую строку:
+            # missiles_collection.fire(self)
 
     def forvard(self):
         self.__vx = 0
         self.__vy = -1
-        self.__canvas.itemconfig(self.__id, image = skin.get('tank_up'))
+        self.__canvas.itemconfig(self.__id, image=skin.get('tank_up'))
 
     def backward(self):
         self.__vx = 0
         self.__vy = 1
-        self.__canvas.itemconfig(self.__id, image = skin.get('tank_down'))
+        self.__canvas.itemconfig(self.__id, image=skin.get('tank_down'))
 
     def left(self):
         self.__vx = -1
         self.__vy = 0
-        self.__canvas.itemconfig(self.__id, image = skin.get('tank_left'))
+        self.__canvas.itemconfig(self.__id, image=skin.get('tank_left'))
 
     def right(self):
         self.__vx = 1
         self.__vy = 0
-        self.__canvas.itemconfig(self.__id, image = skin.get('tank_right'))
+        self.__canvas.itemconfig(self.__id, image=skin.get('tank_right'))
 
     def stop(self):
         self.__vx = 0
@@ -150,16 +153,22 @@ class Tank:
             if self.__bot:
                 self.__AI()
 
+                # ДОБАВЛЯЕМ стрельбу раз в 10 секунд (600 кадров при 60 FPS)
+                if self.__shot_timer <= 0:
+                    self.fire()  # Стреляем
+                    self.__shot_timer = 600  # Сбрасываем таймер на 10 секунд
+                else:
+                    self.__shot_timer -= 1  # Уменьшаем таймер
+
             self.__dx = self.__vx * self.__speed
             self.__dy = self.__vy * self.__speed
             self.__x += self.__dx
             self.__y += self.__dy
-            self.__fuel -=self.__speed
+            self.__fuel -= self.__speed
             self.__update_hitbox()
             self.__chek_out_of_world()
             self.__check_map_collision()
             self.__repaint()
-
 
     def __undo_move(self):
         if self.__dx == 0 and self.__dy == 0:
@@ -173,12 +182,12 @@ class Tank:
 
     def __create(self):
         self.__id = self.__canvas.create_image(self.__x, self.__y,
-                                               image = skin.get('tank_up'), anchor ='nw')
+                                               image=skin.get('tank_up'), anchor='nw')
 
     def __repaint(self):
         self.__canvas.moveto(self.__id,
-                             x = world.get_screen_x(self.__x),
-                             y = world.get_screen_y(self.__y))
+                             x=world.get_screen_x(self.__x),
+                             y=world.get_screen_y(self.__y))
 
     def __update_hitbox(self):
         self.__hitbox.moveto(self.__x, self.__y)
@@ -230,7 +239,6 @@ class Tank:
             self.__undo_move()
             if self.__bot:
                 self.__AI_change_orientation()
-
 
     def __del__(self):
         print(f'удален танк')
